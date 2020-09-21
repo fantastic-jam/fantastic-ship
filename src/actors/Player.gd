@@ -1,4 +1,5 @@
 extends KinematicBody2D
+class_name Player
 
 export var _device = "0"
 var type_name = "Player"
@@ -10,7 +11,10 @@ var _x_drag = 800
 var _max_speed = 300
 var bump = Vector2(0, 0)
 
-onready var _sprite = get_node('Sprite')
+onready var _sprite = get_node("Sprite")
+onready var _player = get_node("AudioStreamPlayer")
+var _jump_sound = preload("res://assets/snd/jump.wav")
+var _bump_sound = preload("res://assets/snd/bump.wav")
 
 func _ready():
 	pass # Replace with function body.
@@ -34,6 +38,7 @@ func _process(delta):
 	var y = (_gravity + bump.y) * delta
 	if is_on_floor() and Input.is_action_just_pressed("jump_%s" % _device):
 		y = -200
+		play_sound(_jump_sound)
 	
 	_velocity = _velocity + Vector2((x + x_drag) * delta, y)
 	if _velocity.x < -_max_speed:
@@ -64,3 +69,9 @@ func _physics_process(delta):
 		if collider.get('type_name') == 'Player':
 			bump = (position - collider.position).normalized() * 300
 			collider.bump = -bump
+			play_sound(_bump_sound)
+
+func play_sound(sound: AudioStream) -> void:
+	_player.stream = sound
+	_player.play()
+			
